@@ -65,7 +65,7 @@ var clone = function(fn) {
 var url_file = "url_file.html";
 var response2file = function(result, response) {
     if (result instanceof Error) {
-        console.error('Error: ' + util.format(response.message));
+        console.error('Error: ' + response.message);
     } else {
         console.error("Wrote %s", url_file);
         fs.writeFileSync(url_file, result);
@@ -75,7 +75,7 @@ var response2file = function(result, response) {
 if(require.main == module) {
     program
         .option('-c, --checks <check_file>', 'Path to checks.json', clone(assertFileExists), CHECKSFILE_DEFAULT)
-        .option('-u, --url <url>', 'Path to url', clone(assertFileExists), URL_DEFAULT)
+        .option('-u, --url <url>', 'Path to url')
         .parse(process.argv);
     var rest = require('restler');
     rest.get(program.url).on('complete', function(result) {
