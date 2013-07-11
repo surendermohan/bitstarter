@@ -27,6 +27,8 @@ var cheerio = require('cheerio');
 var HTMLFILE_DEFAULT = "index.html";
 var CHECKSFILE_DEFAULT = "checks.json";
 var URL_DEFAULT = "http://fierce-reaches-1073.herokuapp.com";
+var rest = require('restler');
+var url_file = "url_file.html";
 
 var assertFileExists = function(infile) {
     var instr = infile.toString();
@@ -62,7 +64,6 @@ var clone = function(fn) {
     return fn.bind({});
 };
 
-var url_file = "url_file.html";
 var response2file = function(result, response) {
     if (result instanceof Error) {
         console.error('Error: ' + response.message);
@@ -72,20 +73,26 @@ var response2file = function(result, response) {
     }
 };
 
+var buildfn = function(urlfile) {
+    var response2file = function(result, response) {
+        if (result instanceof Error) {
+            console.error('Error: ' + result.message);
+        } else {
+            console.error("Wrote %s", urlfile);
+            fs.writeFileSync(urlfile, result);
+        }
+    };
+    return response2file;
+};
+
+
 if(require.main == module) {
     program
         .option('-c, --checks <check_file>', 'Path to checks.json', clone(assertFileExists), CHECKSFILE_DEFAULT)
         .option('-u, --url <url>', 'Path to url')
         .parse(process.argv);
-    var rest = require('restler');
-    rest.get(program.url).on('complete', function(result) {
-      if (result instanceof Error) {
-        console.error('Error: ' + result.message);
-      } else {
-        fs.writeFileSync(url_file, result);
-        console.error("Wrote %s", url_file);
-      }
-    });
+    var response2file = buildfn(url_file);
+    rest.get(apiurl).on('complete', response2file);
         
     var checkJson = checkHtmlFile(url_file, program.checks);
     var outJson = JSON.stringify(checkJson, null, 4);
