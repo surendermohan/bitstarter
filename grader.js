@@ -92,7 +92,7 @@ if(require.main == module) {
         .option('-u, --url <url>', 'Path to url')
         .parse(process.argv);
     var response2file = buildfn(url_file);
-    rest.get(apiurl).on('complete', response2file);
+    rest.get(program.url).on('complete', response2file);
         
     var checkJson = checkHtmlFile(url_file, program.checks);
     var outJson = JSON.stringify(checkJson, null, 4);
