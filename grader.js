@@ -78,7 +78,15 @@ if(require.main == module) {
         .option('-u, --url <url>', 'Path to url', clone(assertFileExists), URL_DEFAULT)
         .parse(process.argv);
     var rest = require('restler');
-    rest.get(program.url).on('complete', response2console);        
+    rest.get(program.url).on('complete', function(result) {
+      if (result instanceof Error) {
+        console.error('Error: ' + result.message);
+      } else {
+        fs.writeFileSync(url_file, result);
+        console.error("Wrote %s", url_file);
+      }
+    });
+        
     var checkJson = checkHtmlFile(url_file, program.checks);
     var outJson = JSON.stringify(checkJson, null, 4);
     console.log(outJson);
